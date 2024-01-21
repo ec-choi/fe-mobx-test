@@ -98,9 +98,9 @@ const AssignmentResult = () => {
                     />
                     <label htmlFor={`viewCommentary${id}`}>해설보기</label>
                   </div>
-                  {viewAssignmentImage && <img src={problemImage} alt="문제 이미지" />}
                   {isShowCommentary && (
                     <div>
+                      {viewAssignmentImage && <img src={problemImage} alt="문제 이미지" />}
                       <img src={explanationImage} alt="해설 이미지" />
                       <label htmlFor={`viewCommentary${id}`}>해설접기</label>
                     </div>
