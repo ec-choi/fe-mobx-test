@@ -92,7 +92,8 @@ const AssignmentResult = () => {
                 </div>
                 <div>
                   <div>
-                    <img src={answerImage} alt={`정답 :${answer}`} />
+                    {answer}
+                    {/* <img src={answerImage} alt={`정답 :${answer}`} /> */}
                     <input
                       type="checkbox"
                       name={`viewCommentary${id}`}

@@ -26,29 +26,29 @@ export class AssignmentStore {
   // 총 틀린,모르는 문제 갯수
   constructor() {
     makeObservable(this, {
-      // 문제 리스트
+      // fetch한 문제 리스트
       assignments: observable,
-      // fetch한 문제 리스트의 정보 (총갯수, 학교, 학년, 학기)
+      // fetch한 문제 리스트의 정보 (총갯수, 학교, 학년, 학기) FIXME: computed 변경하기
       assignmentInfo: observable,
-
+      // 문제 리스트 fetch
+      fetchAndSetAssignments: action,
+      //===
       // 현재 문제(step 별로)
       getThisAssignment: observable,
       // 현재 문제에 정답 입력
       setThisAssignmentAnswer: action,
-      // 문제 리스트 fetch
-      fetchAndSetAssignments: action,
-      // 문제 리스트의 정답 fetch
-      fetchAnsSetAssignmentsAnswer: action,
       // 문제를 다 풀어서 정답을 호출 할 수 있는 상태인지 체크하는 boolean 값
       isSubmitPossible: computed,
-
-      // 채점한 문제
+      // 문제 리스트의 정답 fetch
+      fetchAnsSetAssignmentsAnswer: action,
+      //===
+      // fetch한 채점한 문제
       checkedAssignments: observable,
-      // 채점한 문제의 정보(점수, 오답수)
+      // 채점한 문제의 정보(점수, 오답수) FIXME: computed 변경하기
       checkedAssignmentInfo: observable,
       // 오답 & 모르는 문제만
       filterUnCorrectAssignments: computed,
-      // 각 문제의 해설을 보는지
+      // 각 문제의 해설을 보는지 체크
       setIsShowCommentary: action,
     })
   }
