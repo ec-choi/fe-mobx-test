@@ -6,7 +6,7 @@ declare namespace Response {
     id: number
     type: 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE'
     problemImage: assignImage
-    answerLegth: number // MULTIPLE_CHOICE의 경우 2 ~
+    answerLength: number // MULTIPLE_CHOICE의 경우 2 ~
   }
   // 문제 리스트
   type AssignmentContents = AssignmentContent[]

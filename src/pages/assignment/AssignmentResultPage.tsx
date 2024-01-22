@@ -1,7 +1,14 @@
+/** @jsxImportSource @emotion/react */
 import { observer } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { assignmentStore } from '../../store/assignmentStore'
 import { useEffect, useState } from 'react'
+import { Toggle } from '../../components/toggle/Toggle'
+import { Main } from '../../components/layout/Main'
+import { css } from '@emotion/react'
+import { spacing, color, rounded } from '../../styles/style'
+import { Header } from '../../components/layout/Header'
+import Typography from '../../components/typography/Typography'
 
 const AssignmentResult = () => {
   const store = assignmentStore
@@ -27,20 +34,29 @@ const AssignmentResult = () => {
   }, [filterUnCorrectAssignments, store.checkedAssignments, store.filterUnCorrectAssignments])
 
   return (
-    <main>
-      <nav>
-        <p>총 {store.assignmentInfo.totalCount}문제</p>
-        <button onClick={onAssignmentCondition}>완료하기</button>
-      </nav>
-      <section>
+    <Main css={AssignmentResultStyle}>
+      <Header
+        title={`총 ${store.assignmentInfo.totalCount}문제`}
+        rightButton={<button onClick={onAssignmentCondition}>완료하기</button>}
+      />
+      <section className="section_content">
         <article>
+          <label htmlFor="filterUnCorrectAssignments">
+            <Typography typoType="body2">오답/모르는 문제만 보기</Typography>
+          </label>
           <input
             type="checkbox"
             name="filterUnCorrectAssignments"
             id="filterUnCorrectAssignments"
             onChange={() => setFilterUnCorrectAssignments((prev) => !prev)}
           />
-          <label htmlFor="filterUnCorrectAssignments">오답/모르는 문제만 보기</label>
+          <Toggle
+            checked={filterUnCorrectAssignments}
+            onClick={() => setFilterUnCorrectAssignments((prev) => !prev)}
+          />
+          <label htmlFor="viewAssignmentImage">
+            <Typography typoType="body2">문제 같이 보기</Typography>
+          </label>
           <input
             type="checkbox"
             name="viewAssignmentImage"
@@ -48,32 +64,40 @@ const AssignmentResult = () => {
             checked={viewAssignmentImage}
             onChange={() => setViewAssignmentImage((prev) => !prev)}
           />
-          <label htmlFor="viewAssignmentImage">문제 같이 보기</label>
+          <Toggle
+            checked={viewAssignmentImage}
+            onClick={() => setViewAssignmentImage((prev) => !prev)}
+          />
         </article>
-        <article>
-          <div>
-            <p>
+        <article css={checkedResult}>
+          <div className="checked_result">
+            <Typography as="p" typoType="body3" color="gray600" align="center">
               채점결과
-              <br />
-              <strong>{store.checkedAssignmentInfo.score}점</strong>
-            </p>
+            </Typography>
+            <Typography as="p" typoType="caption1" color="gray900" align="center">
+              {store.checkedAssignmentInfo.score}점
+            </Typography>
           </div>
-          <div>
-            <p>
-              채점한 {store.assignmentInfo.totalCount}문제 중<br />
-              <strong>{store.checkedAssignmentInfo.unCorrectCount}문제</strong>
-              <span>오답</span>
-            </p>
+          <div className="divider"></div>
+          <div className="checked_result">
+            <Typography as="p" typoType="body3" color="gray600" align="center">
+              채점한 {store.assignmentInfo.totalCount}문제 중
+            </Typography>
+            <Typography as="p" typoType="caption1" color="accent" align="center">
+              {store.checkedAssignmentInfo.unCorrectCount}문제&nbsp;
+              <Typography typoType="body1" color="gray600" align="center">
+                오답
+              </Typography>
+            </Typography>
           </div>
         </article>
       </section>
-      <ul>
+      <ul css={checkedAssignmentsStyle}>
         {checkedAssignments.map(
           (
             {
               id,
               isCorrect,
-              selectedAnswer,
               answer,
               problemImage,
               answerImage,
@@ -84,39 +108,110 @@ const AssignmentResult = () => {
           ) => {
             return (
               <li key={id}>
-                <div>
-                  <p>
-                    {index + 1}번{isCorrect ? <span>정답</span> : <span>오답</span>}
-                  </p>
-                  <p>제출한 답 : {selectedAnswer !== '0' ? selectedAnswer : '모름'} </p>
+                <div className="answer_status">
+                  <Typography as="p" typoType="caption2">
+                    {index + 1}번&nbsp;&nbsp;&nbsp;
+                    <Typography typoType="caption2" color={isCorrect ? 'primary' : 'accent'}>
+                      {isCorrect ? '정답' : '오답'}
+                    </Typography>
+                  </Typography>
                 </div>
-                <div>
-                  <div>
-                    {answer}
-                    {/* <img src={answerImage} alt={`정답 :${answer}`} /> */}
+                <div className="answer_status">
+                  <img src={answerImage} alt={`정답 :${answer}`} className="answer_img" />
+
+                  <label htmlFor={`viewCommentary${id}`}>
                     <input
                       type="checkbox"
                       name={`viewCommentary${id}`}
                       id={`viewCommentary${id}`}
                       onChange={(e) => store.setIsShowCommentary(id, e.target.checked)}
                     />
-                    <label htmlFor={`viewCommentary${id}`}>해설보기</label>
-                  </div>
-                  {isShowCommentary && (
-                    <div>
-                      {viewAssignmentImage && <img src={problemImage} alt="문제 이미지" />}
-                      <img src={explanationImage} alt="해설 이미지" />
-                      <label htmlFor={`viewCommentary${id}`}>해설접기</label>
-                    </div>
-                  )}
+                    <Typography typoType="caption2">해설보기</Typography>
+                  </label>
                 </div>
+                {isShowCommentary && (
+                  <div className="answer_commentary">
+                    {viewAssignmentImage && (
+                      <div className="assignment_img_wrap">
+                        <img src={problemImage} alt="문제 이미지" />
+                      </div>
+                    )}
+                    <img src={explanationImage} alt="해설 이미지" />
+                    <label htmlFor={`viewCommentary${id}`}>
+                      <Typography as="p" typoType="caption2" align="center">
+                        ▲ 해설접기
+                      </Typography>
+                    </label>
+                  </div>
+                )}
               </li>
             )
           }
         )}
       </ul>
-    </main>
+    </Main>
   )
 }
 
 export const AssignmentResultPage = observer(AssignmentResult)
+
+const AssignmentResultStyle = css`
+  .section_content {
+    width: 100%;
+    padding: ${spacing.sm} ${spacing.lg};
+  }
+`
+
+const checkedResult = css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: ${spacing.xs};
+  border: 1px solid ${color.gray200};
+  background: ${color.white};
+  border-radius: ${rounded.lg};
+  margin-top: ${spacing.sm};
+  .checked_result {
+    width: 50%;
+  }
+  .divider {
+    width: 1px;
+    height: 24px;
+    background: ${color.gray400};
+  }
+`
+
+const checkedAssignmentsStyle = css`
+  width: 100%;
+  li {
+    background: ${color.white};
+    & + li {
+      margin-top: ${spacing.sm};
+    }
+  }
+
+  .answer_status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: ${spacing.lg};
+    border-bottom: 1px solid ${color.gray100};
+    .answer_img {
+      height: 16px;
+      width: auto;
+      margin: 0;
+    }
+  }
+  .answer_commentary {
+    padding: ${spacing.lg};
+    .assignment_img_wrap {
+      border-bottom: 1px solid ${color.gray200};
+    }
+
+    img {
+      display: block;
+      width: 90%;
+      margin: ${spacing.lg} auto;
+    }
+  }
+`
