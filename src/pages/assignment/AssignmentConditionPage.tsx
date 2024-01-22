@@ -11,7 +11,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { REG_EXP } from '../../constants/regExp'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react'
-import { assignmentStore } from '../../store/assignmentViewModel'
+import { assignmentStore } from '../../store/assignmentStore'
 
 // 문제 유형 선택
 const AssignmentCondition = () => {

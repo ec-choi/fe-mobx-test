@@ -1,43 +1,24 @@
 import { action, computed, makeObservable, observable, runInAction } from 'mobx'
 import {
-  ANSWER_OPTIONS,
   ELEMENTARY_GRADES,
   SCHOOLS,
   SEMESTERS,
   UNKNOWN_FLAG,
 } from '../constants/assignmentConstant'
 import { assignmentApi } from '../api/assigmnent'
-
-export type UserAssignment = Response.AssignmentContent & {
-  selectedAnswer: Array<(typeof ANSWER_OPTIONS)[number]['value']> | [] // '1', '2,4', '0', ''
-}
-type CheckedUserAssignment = Response.AssignmentAnswerContent & {
-  isCorrect: boolean // 정답을 맞추었는지
-  isUnknown: boolean // 모르는 문제인지
-  selectedAnswer: string // '1', '2,4', '모름', ''
-  isShowCommentary: boolean // 해설 보는지
-}
-type AssignmentInfo = {
-  totalCount: number
-  title: string
-}
-
-type CheckedAssignmentInfo = {
-  score: number
-  unCorrectCount: number
-}
+import { scoreUtils } from '../utils/scoreUtils'
 
 export class AssignmentStore {
   // 문제 + 사용자의 답변
-  assignments: UserAssignment[] = []
+  assignments: Store.UserAssignment[] = []
   // fetch 한 문제 리스트의 정보
-  assignmentInfo: AssignmentInfo = {
+  assignmentInfo: Store.AssignmentInfo = {
     totalCount: 0,
     title: '',
   }
   // 채점 된 문제 (문제의 답변 + 오답여부)
-  checkedAssignments: CheckedUserAssignment[] = []
-  checkedAssignmentInfo: CheckedAssignmentInfo = {
+  checkedAssignments: Store.CheckedUserAssignment[] = []
+  checkedAssignmentInfo: Store.CheckedAssignmentInfo = {
     score: 0,
     unCorrectCount: 0,
   }
@@ -112,6 +93,7 @@ export class AssignmentStore {
           isShowCommentary: false,
         }
         if (this.assignments.filter(({ id }) => id === problemAnswer.id).length) {
+          // 오답 case
           const userAssignment = this.assignments.filter(({ id }) => id === problemAnswer.id)[0]
           if (userAssignment.selectedAnswer.join(',') !== problemAnswer.answer) {
             unCorrectCount++
@@ -122,6 +104,7 @@ export class AssignmentStore {
               selectedAnswer: userAssignment.selectedAnswer.join(','),
             }
           } else {
+            // 정답 case
             result = {
               ...result,
               isCorrect: true,
@@ -137,11 +120,13 @@ export class AssignmentStore {
   }
   // 채점 된 문제의 정보
   #setCheckedAssignmentInfo(unCorrectCount: number) {
-    this.checkedAssignmentInfo.score =
-      ((this.assignmentInfo.totalCount - unCorrectCount) / this.assignmentInfo.totalCount) * 100
+    this.checkedAssignmentInfo.score = scoreUtils.scoreToPercentage(
+      this.assignmentInfo.totalCount,
+      this.assignmentInfo.totalCount - unCorrectCount
+    )
     this.checkedAssignmentInfo.unCorrectCount = unCorrectCount
   }
-  // 오답 & 모르는 문제만 보기
+  // 오답 & 모르는 문제만 보기 : REVIEW 호출할때마다 연산? => checkedAssignmentInfo 처럼 observable로?
   get filterUnCorrectAssignments() {
     return this.checkedAssignments.filter(({ isCorrect }) => !isCorrect)
   }
@@ -158,7 +143,7 @@ export class AssignmentStore {
     return this.assignments[index]
   }
   // 문제의 답변 입력
-  setThisAssignmentAnswer(index: number, selectedAnswer: UserAssignment['selectedAnswer']) {
+  setThisAssignmentAnswer(index: number, selectedAnswer: Store.UserAssignment['selectedAnswer']) {
     return (this.assignments[index].selectedAnswer = selectedAnswer)
   }
   // 문제 답안 제출이 가능한지 판별

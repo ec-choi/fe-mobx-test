@@ -1,11 +1,12 @@
 import { observer } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
-import { assignmentStore } from '../../store/assignmentViewModel'
+import { assignmentStore } from '../../store/assignmentStore'
 import { useEffect, useState } from 'react'
 
 const AssignmentResult = () => {
   const store = assignmentStore
   const navigate = useNavigate()
+  // 채점결과 문제
   const [checkedAssignments, setCheckedAssignments] = useState(store.checkedAssignments)
 
   const [filterUnCorrectAssignments, setFilterUnCorrectAssignments] = useState<boolean>(false)
@@ -17,7 +18,6 @@ const AssignmentResult = () => {
   }
 
   // 오답 & 모르는문제 필터링
-  // REVIEW: store로? businessLogic?
   useEffect(() => {
     if (filterUnCorrectAssignments) {
       setCheckedAssignments(store.filterUnCorrectAssignments)
@@ -69,21 +69,24 @@ const AssignmentResult = () => {
       </section>
       <ul>
         {checkedAssignments.map(
-          ({
-            id,
-            isCorrect,
-            selectedAnswer,
-            answer,
-            problemImage,
-            answerImage,
-            explanationImage,
-            isShowCommentary,
-          }) => {
+          (
+            {
+              id,
+              isCorrect,
+              selectedAnswer,
+              answer,
+              problemImage,
+              answerImage,
+              explanationImage,
+              isShowCommentary,
+            },
+            index
+          ) => {
             return (
               <li key={id}>
                 <div>
                   <p>
-                    {id}번{isCorrect ? <span>정답</span> : <span>오답</span>}
+                    {index + 1}번{isCorrect ? <span>정답</span> : <span>오답</span>}
                   </p>
                   <p>제출한 답 : {selectedAnswer !== '0' ? selectedAnswer : '모름'} </p>
                 </div>
