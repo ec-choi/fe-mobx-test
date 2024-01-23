@@ -14,7 +14,7 @@ const AssignmentResult = () => {
   const store = assignmentStore
   const navigate = useNavigate()
   // 채점결과 문제
-  const [checkedAssignments, setCheckedAssignments] = useState(store.checkedAssignments)
+  const [checkedAssignments, setCheckedAssignments] = useState(store.assignments)
 
   const [filterUnCorrectAssignments, setFilterUnCorrectAssignments] = useState<boolean>(false)
 
@@ -29,9 +29,9 @@ const AssignmentResult = () => {
     if (filterUnCorrectAssignments) {
       setCheckedAssignments(store.filterUnCorrectAssignments)
     } else {
-      setCheckedAssignments(store.checkedAssignments)
+      setCheckedAssignments(store.assignments)
     }
-  }, [filterUnCorrectAssignments, store.checkedAssignments, store.filterUnCorrectAssignments])
+  }, [filterUnCorrectAssignments, store.assignments, store.filterUnCorrectAssignments])
 
   return (
     <Main css={AssignmentResultStyle}>
@@ -117,7 +117,7 @@ const AssignmentResult = () => {
                   </Typography>
                 </div>
                 <div className="answer_status">
-                  <img src={answerImage} alt={`정답 :${answer}`} className="answer_img" />
+                  <img src={answerImage || ''} alt={`정답 :${answer}`} className="answer_img" />
 
                   <label htmlFor={`viewCommentary${id}`}>
                     <input

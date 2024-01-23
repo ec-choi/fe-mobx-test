@@ -13,10 +13,8 @@ declare namespace Response {
 
   // ** 문제 해답 조회
   // 문제 해답
-  type AssignmentAnswerContent = {
-    id: number
+  type AssignmentAnswerContent = Pick<AssignmentContent, 'id' | 'problemImage'> & {
     answer: string // "1,4",
-    problemImage: assignImage
     answerImage: assignImage
     explanationImage: assignImage
   }

@@ -5,11 +5,12 @@ import {
   SEMESTERS,
   UNKNOWN_FLAG,
 } from '../constants/assignmentConstant'
-import { assignmentApi } from '../api/assigmnent'
+import { assignmentApi } from '../api/assignment'
 import { scoreUtils } from '../utils/scoreUtils'
+import { Store } from '../types/store/assignment/interface'
 
 export class AssignmentStore {
-  // 문제 + 사용자의 답변
+  // 문제 + 사용자의 답변 + 채점 정보
   assignments: Store.UserAssignment[] = []
   // fetch 한 문제 리스트의 정보
   assignmentInfo: Store.AssignmentInfo = {
@@ -17,21 +18,23 @@ export class AssignmentStore {
     title: '',
   }
   // 채점 된 문제 (문제의 답변 + 오답여부)
-  checkedAssignments: Store.CheckedUserAssignment[] = []
   checkedAssignmentInfo: Store.CheckedAssignmentInfo = {
     score: 0,
     unCorrectCount: 0,
   }
+  // 현재 문제의 id
+  selectedAssignmentIdPointer: number | null = null
 
-  // 총 틀린,모르는 문제 갯수
   constructor() {
     makeObservable(this, {
-      // fetch한 문제 리스트
+      // fetch한 문제 리스트 + 정답 & 해설정보
       assignments: observable,
-      // fetch한 문제 리스트의 정보 (총갯수, 학교, 학년, 학기) FIXME: computed 변경하기
+      // fetch한 문제 리스트의 정보 (총갯수, 학교, 학년, 학기) FIXME: computed 변경하면 검색조건을 저장해야함... 비슷한 것 같아서 둠
       assignmentInfo: observable,
       // 문제 리스트 fetch
       fetchAndSetAssignments: action,
+      // 현재 문제의 id(선택 될 수 있는 값)
+      selectedAssignmentIdPointer: observable,
       //===
       // 현재 문제(step 별로)
       getThisAssignment: observable,
@@ -42,8 +45,6 @@ export class AssignmentStore {
       // 문제 리스트의 정답 fetch
       fetchAnsSetAssignmentsAnswer: action,
       //===
-      // fetch한 채점한 문제
-      checkedAssignments: observable,
       // 채점한 문제의 정보(점수, 오답수) FIXME: computed 변경하기
       checkedAssignmentInfo: observable,
       // 오답 & 모르는 문제만
@@ -52,7 +53,7 @@ export class AssignmentStore {
       setIsShowCommentary: action,
     })
   }
-  // 문제 리스트 api 요청
+  // 문제 리스트 api 요청 + 초기값 설정
   async fetchAndSetAssignments(conditionData: Request.AssignmentContent) {
     const assignments = await assignmentApi.getAssignments(conditionData)
     runInAction(() => {
@@ -60,6 +61,12 @@ export class AssignmentStore {
         return {
           ...assignment,
           selectedAnswer: [],
+          isCorrect: false,
+          isUnknown: false,
+          isShowCommentary: false,
+          answer: '',
+          answerImage: '',
+          explanationImage: '',
         }
       })
       this.#setAssignmentInfo(conditionData)
@@ -83,38 +90,34 @@ export class AssignmentStore {
     const problemAnswers = await assignmentApi.getAssignmentsAnswer(problemIds)
     runInAction(() => {
       let unCorrectCount = 0
-      this.checkedAssignments = problemAnswers.map((problemAnswer) => {
-        // 사용자가 푼 문제와 답안 문제의 답을 비교하여 상태 업데이트
-        let result = {
-          ...problemAnswer,
-          isCorrect: false,
-          selectedAnswer: '',
-          isUnknown: false,
-          isShowCommentary: false,
-        }
-        if (this.assignments.filter(({ id }) => id === problemAnswer.id).length) {
-          // 오답 case
-          const userAssignment = this.assignments.filter(({ id }) => id === problemAnswer.id)[0]
-          if (userAssignment.selectedAnswer.join(',') !== problemAnswer.answer) {
-            unCorrectCount++
-            result = {
-              ...result,
-              isCorrect: false,
-              isUnknown: userAssignment.selectedAnswer.join(',').indexOf(String(UNKNOWN_FLAG)) > -1,
-              selectedAnswer: userAssignment.selectedAnswer.join(','),
-            }
-          } else {
-            // 정답 case
-            result = {
-              ...result,
-              isCorrect: true,
-              isUnknown: false,
-              selectedAnswer: userAssignment.selectedAnswer.join(','),
-            }
-          }
-        }
-        return result
-      })
+      // this.assignments = problemAnswers.map((problemAnswer) => {
+      //   // 사용자가 푼 문제와 답안 문제의 답을 비교하여 상태 업데이트
+      //   let result = {
+      //     ...problemAnswer,
+      //   }
+      //   if (this.assignments.filter(({ id }) => id === problemAnswer.id).length) {
+      //     // 오답 case
+      //     const userAssignment = this.assignments.filter(({ id }) => id === problemAnswer.id)[0]
+      //     if (userAssignment.selectedAnswer.join(',') !== problemAnswer.answer) {
+      //       unCorrectCount++
+      //       result = {
+      //         ...result,
+      //         isCorrect: false,
+      //         isUnknown: userAssignment.selectedAnswer.join(',').indexOf(String(UNKNOWN_FLAG)) > -1,
+      //         selectedAnswer: userAssignment.selectedAnswer, // .join(','),
+      //       }
+      //     } else {
+      //       // 정답 case
+      //       result = {
+      //         ...result,
+      //         isCorrect: true,
+      //         isUnknown: false,
+      //         selectedAnswer: userAssignment.selectedAnswer, //.join(','),
+      //       }
+      //     }
+      //   }
+      //   return result
+      // })
       this.#setCheckedAssignmentInfo(unCorrectCount)
     })
   }
@@ -128,11 +131,11 @@ export class AssignmentStore {
   }
   // 오답 & 모르는 문제만 보기 : REVIEW 호출할때마다 연산? => checkedAssignmentInfo 처럼 observable로?
   get filterUnCorrectAssignments() {
-    return this.checkedAssignments.filter(({ isCorrect }) => !isCorrect)
+    return this.assignments.filter(({ isCorrect }) => !isCorrect)
   }
   // 해설보기
   setIsShowCommentary(assignmentId: number, isShowFlag: boolean) {
-    this.checkedAssignments.forEach((assignment) => {
+    this.assignments.forEach((assignment) => {
       if (assignment.id === assignmentId) {
         assignment.isShowCommentary = isShowFlag
       }

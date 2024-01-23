@@ -1,14 +1,12 @@
+import { ANSWER_OPTIONS } from '../../../constants/assignmentConstant'
 declare namespace Store {
-  type UserAssignment = Response.AssignmentContent & {
-    selectedAnswer: Array<(typeof ANSWER_OPTIONS)[number]['value']> | [] // '1', '2,4', '0', ''
-  }
-
-  type CheckedUserAssignment = Response.AssignmentAnswerContent & {
-    isCorrect: boolean // 정답을 맞추었는지
-    isUnknown: boolean // 모르는 문제인지
-    selectedAnswer: string // '1', '2,4', '모름', ''
-    isShowCommentary: boolean // 해설 보는지
-  }
+  type UserAssignment = Response.AssignmentContent &
+    Pick<Response.AssignmentAnswerContent, 'answer' | 'answerImage' | 'explanationImage'> & {
+      selectedAnswer: Array<(typeof ANSWER_OPTIONS)[number]['value']> | [] // '1', '2,4', '0', ''
+      isCorrect: boolean // 정답을 맞추었는지
+      isUnknown: boolean // 모르는 문제인지
+      isShowCommentary: boolean // 해설 보는지
+    }
 
   type AssignmentInfo = {
     totalCount: number
