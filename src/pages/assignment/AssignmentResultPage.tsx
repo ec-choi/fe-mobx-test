@@ -2,7 +2,7 @@
 import { observer } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { assignmentStore } from '../../store/assignmentStore'
-import { useEffect, useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Toggle } from '../../components/toggle/Toggle'
 import { Main } from '../../components/layout/Main'
 import { css } from '@emotion/react'
@@ -13,25 +13,13 @@ import Typography from '../../components/typography/Typography'
 const AssignmentResult = () => {
   const store = assignmentStore
   const navigate = useNavigate()
-  // 채점결과 문제
-  const [checkedAssignments, setCheckedAssignments] = useState(store.assignments)
 
-  const [filterUnCorrectAssignments, setFilterUnCorrectAssignments] = useState<boolean>(false)
-
+  const [filterAssignments, setFilterAssignments] = useState<boolean>(false)
   const [viewAssignmentImage, setViewAssignmentImage] = useState<boolean>(false)
 
   const onAssignmentCondition = () => {
     navigate('/', { replace: true })
   }
-
-  // 오답 & 모르는문제 필터링
-  useEffect(() => {
-    if (filterUnCorrectAssignments) {
-      setCheckedAssignments(store.filterUnCorrectAssignments)
-    } else {
-      setCheckedAssignments(store.assignments)
-    }
-  }, [filterUnCorrectAssignments, store.assignments, store.filterUnCorrectAssignments])
 
   return (
     <Main css={AssignmentResultStyle}>
@@ -41,18 +29,18 @@ const AssignmentResult = () => {
       />
       <section className="section_content">
         <article>
-          <label htmlFor="filterUnCorrectAssignments">
+          <label htmlFor="filterAssignments">
             <Typography typoType="body2">오답/모르는 문제만 보기</Typography>
           </label>
           <input
             type="checkbox"
-            name="filterUnCorrectAssignments"
-            id="filterUnCorrectAssignments"
-            onChange={() => setFilterUnCorrectAssignments((prev) => !prev)}
+            name="filterAssignments"
+            id="filterAssignments"
+            onChange={() => setFilterAssignments((prev) => !prev)}
           />
           <Toggle
-            checked={filterUnCorrectAssignments}
-            onClick={() => setFilterUnCorrectAssignments((prev) => !prev)}
+            checked={filterAssignments}
+            onClick={() => setFilterAssignments((prev) => !prev)}
           />
           <label htmlFor="viewAssignmentImage">
             <Typography typoType="body2">문제 같이 보기</Typography>
@@ -93,7 +81,7 @@ const AssignmentResult = () => {
         </article>
       </section>
       <ul css={checkedAssignmentsStyle}>
-        {checkedAssignments.map(
+        {[...store.assignments.values()].map(
           (
             {
               id,
@@ -106,6 +94,7 @@ const AssignmentResult = () => {
             },
             index
           ) => {
+            if (filterAssignments && isCorrect) return <Fragment key={id}></Fragment>
             return (
               <li key={id}>
                 <div className="answer_status">
@@ -117,7 +106,7 @@ const AssignmentResult = () => {
                   </Typography>
                 </div>
                 <div className="answer_status">
-                  <img src={answerImage || ''} alt={`정답 :${answer}`} className="answer_img" />
+                  <img src={answerImage} alt={`정답 :${answer}`} className="answer_img" />
 
                   <label htmlFor={`viewCommentary${id}`}>
                     <input

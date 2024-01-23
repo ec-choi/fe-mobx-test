@@ -1,5 +1,5 @@
 /** @jsxImportSource @emotion/react */
-import { Fragment } from 'react'
+import { ChangeEvent, Fragment } from 'react'
 import { ANSWER_OPTIONS } from '../../constants/assignmentConstant'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react'
@@ -24,7 +24,7 @@ const AssignmentWorkbook = () => {
   const currentAssignment = store.getThisAssignment(currentStep)
 
   // 답안지 업데이트
-  const onAnswerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onAnswerChange = (e: ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value, checked },
     } = e
@@ -37,7 +37,7 @@ const AssignmentWorkbook = () => {
       checkedAnswersState = checkedAnswersState.filter((answer) => answer !== value)
     }
     // 정답 업데이트
-    store.setThisAssignmentAnswer(currentStep, checkedAnswersState)
+    store.setThisAssignmentAnswer(currentAssignment.id, checkedAnswersState)
   }
 
   // 제출하고 채점하기로 넘어가기
