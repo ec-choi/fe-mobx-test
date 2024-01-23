@@ -12,21 +12,19 @@ import { Store } from '../types/store/assignment/interface'
 export class AssignmentStore {
   // 문제 + 사용자의 답변 + 채점 정보
   assignments: Map<Store.UserAssignment['id'], Store.UserAssignment> = new Map()
-  // fetch 한 문제 리스트의 정보
+  // fetch한 문제 리스트의 정보 (총갯수, 학교, 학년, 학기) & 채점한 문제의 정보(점수, 오답수)
   assignmentInfo: Store.AssignmentInfo = {
     totalCount: 0,
     title: '',
-  }
-  // 채점 된 문제 (문제의 답변 + 오답여부)
-  checkedAssignmentInfo: Store.CheckedAssignmentInfo = {
     score: 0,
     unCorrectCount: 0,
   }
+
   constructor() {
     makeObservable(this, {
       // 문제 리스트(fetch) + 사용자 입력 답 + 정답 & 해설정보(fetch)
       assignments: observable,
-      // fetch한 문제 리스트의 정보 (총갯수, 학교, 학년, 학기) FIXME: computed 변경하면 검색조건을 저장해야함... 비슷한 것 같아서 둠
+      // fetch한 문제 리스트의 정보 (총갯수, 학교, 학년, 학기) & 채점한 문제의 정보(점수, 오답수) FIXME: computed 변경하면 검색조건을 저장해야함... 비슷한 것 같아서 둠
       assignmentInfo: observable,
       // 문제 리스트 fetch
       fetchAndSetAssignments: action,
@@ -39,11 +37,6 @@ export class AssignmentStore {
       isSubmitPossible: computed,
       // 문제 리스트의 정답 fetch
       fetchAnsSetAssignmentsAnswer: action,
-      //===
-      // 채점한 문제의 정보(점수, 오답수)
-      checkedAssignmentInfo: observable,
-      // 각 문제의 해설을 보는지 체크
-      setIsShowCommentary: action,
     })
   }
   // 문제 리스트 api 요청 + 초기값 설정
@@ -57,7 +50,6 @@ export class AssignmentStore {
           selectedAnswer: [],
           isCorrect: false,
           isUnknown: false,
-          isShowCommentary: false,
           answer: '',
           answerImage: '',
           explanationImage: '',
@@ -108,15 +100,11 @@ export class AssignmentStore {
   }
   // 채점 된 문제의 정보
   #setCheckedAssignmentInfo(unCorrectCount: number) {
-    this.checkedAssignmentInfo.score = scoreUtils.scoreToPercentage(
+    this.assignmentInfo.score = scoreUtils.scoreToPercentage(
       this.assignmentInfo.totalCount,
       this.assignmentInfo.totalCount - unCorrectCount
     )
-    this.checkedAssignmentInfo.unCorrectCount = unCorrectCount
-  }
-  // 해설보기
-  setIsShowCommentary(assignmentId: number, isShowFlag: boolean) {
-    this.assignments.get(assignmentId)!.isShowCommentary = isShowFlag
+    this.assignmentInfo.unCorrectCount = unCorrectCount
   }
   // 현재 문제
   getThisAssignment(index: number) {

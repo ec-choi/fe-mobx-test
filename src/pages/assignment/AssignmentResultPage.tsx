@@ -2,7 +2,7 @@
 import { observer } from 'mobx-react'
 import { useNavigate } from 'react-router-dom'
 import { assignmentStore } from '../../store/assignmentStore'
-import { Fragment, useState } from 'react'
+import { ChangeEvent, Fragment, useState } from 'react'
 import { Toggle } from '../../components/toggle/Toggle'
 import { Main } from '../../components/layout/Main'
 import { css } from '@emotion/react'
@@ -17,6 +17,15 @@ const AssignmentResult = () => {
   const [filterAssignments, setFilterAssignments] = useState<boolean>(false)
   const [viewAssignmentImage, setViewAssignmentImage] = useState<boolean>(false)
 
+  const [assignId, setAssignId] = useState<number | null>(null)
+
+  const onChangeCometary = (e: ChangeEvent<HTMLInputElement>, id: number) => {
+    if (e.target.checked) {
+      setAssignId(id)
+    } else {
+      setAssignId(null)
+    }
+  }
   const onAssignmentCondition = () => {
     navigate('/', { replace: true })
   }
@@ -63,7 +72,7 @@ const AssignmentResult = () => {
               채점결과
             </Typography>
             <Typography as="p" typoType="caption1" color="gray900" align="center">
-              {store.checkedAssignmentInfo.score}점
+              {store.assignmentInfo.score}점
             </Typography>
           </div>
           <div className="divider"></div>
@@ -72,7 +81,7 @@ const AssignmentResult = () => {
               채점한 {store.assignmentInfo.totalCount}문제 중
             </Typography>
             <Typography as="p" typoType="caption1" color="accent" align="center">
-              {store.checkedAssignmentInfo.unCorrectCount}문제&nbsp;
+              {store.assignmentInfo.unCorrectCount}문제&nbsp;
               <Typography typoType="body1" color="gray600" align="center">
                 오답
               </Typography>
@@ -82,18 +91,7 @@ const AssignmentResult = () => {
       </section>
       <ul css={checkedAssignmentsStyle}>
         {[...store.assignments.values()].map(
-          (
-            {
-              id,
-              isCorrect,
-              answer,
-              problemImage,
-              answerImage,
-              explanationImage,
-              isShowCommentary,
-            },
-            index
-          ) => {
+          ({ id, isCorrect, answer, problemImage, answerImage, explanationImage }, index) => {
             if (filterAssignments && isCorrect) return <Fragment key={id}></Fragment>
             return (
               <li key={id}>
@@ -113,12 +111,13 @@ const AssignmentResult = () => {
                       type="checkbox"
                       name={`viewCommentary${id}`}
                       id={`viewCommentary${id}`}
-                      onChange={(e) => store.setIsShowCommentary(id, e.target.checked)}
+                      // onChange={(e) => store.setIsShowCommentary(id, e.target.checked)}
+                      onChange={(e) => onChangeCometary(e, id)}
                     />
                     <Typography typoType="caption2">해설보기</Typography>
                   </label>
                 </div>
-                {isShowCommentary && (
+                {assignId === id && (
                   <div className="answer_commentary">
                     {viewAssignmentImage && (
                       <div className="assignment_img_wrap">
