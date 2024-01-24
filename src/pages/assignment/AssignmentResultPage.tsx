@@ -10,23 +10,15 @@ import { spacing, color, rounded } from '../../styles/style'
 import { Header } from '../../components/layout/Header'
 import Typography from '../../components/typography/Typography'
 import FlexBox from '../../components/layout/FlexBox'
+import { Store } from '../../types/store/assignment/interface'
 
 const AssignmentResult = () => {
   const store = assignmentStore
   const navigate = useNavigate()
 
-  const [filterAssignments, setFilterAssignments] = useState<boolean>(false)
-  const [viewAssignmentImage, setViewAssignmentImage] = useState<boolean>(false)
+  const [isAssignmentsFiltered, setIsAssignmentsFiltered] = useState<boolean>(false)
+  const [isViewAssignmentImage, setIsViewAssignmentImage] = useState<boolean>(false)
 
-  const [assignId, setAssignId] = useState<number | null>(null)
-
-  const onChangeCometary = (e: ChangeEvent<HTMLInputElement>, id: number) => {
-    if (e.target.checked) {
-      setAssignId(id)
-    } else {
-      setAssignId(null)
-    }
-  }
   const onAssignmentCondition = () => {
     navigate('/', { replace: true })
   }
@@ -40,7 +32,7 @@ const AssignmentResult = () => {
       <section className="section_content">
         <FlexBox>
           <FlexBox>
-            <label htmlFor="filterAssignments">
+            <label htmlFor="isAssignmentsFiltered">
               <Typography typoType="body2">오답/모르는 문제만 보기</Typography>
             </label>
             <input
@@ -48,17 +40,17 @@ const AssignmentResult = () => {
                 display: none;
               `}
               type="checkbox"
-              name="filterAssignments"
-              id="filterAssignments"
-              onChange={() => setFilterAssignments((prev) => !prev)}
+              name="isAssignmentsFiltered"
+              id="isAssignmentsFiltered"
+              onChange={() => setIsAssignmentsFiltered((prev) => !prev)}
             />
             <Toggle
-              checked={filterAssignments}
-              onClick={() => setFilterAssignments((prev) => !prev)}
+              checked={isAssignmentsFiltered}
+              onClick={() => setIsAssignmentsFiltered((prev) => !prev)}
             />
           </FlexBox>
           <FlexBox>
-            <label htmlFor="viewAssignmentImage">
+            <label htmlFor="isViewAssignmentImage">
               <Typography typoType="body2">문제 같이 보기</Typography>
             </label>
             <input
@@ -66,14 +58,14 @@ const AssignmentResult = () => {
                 display: none;
               `}
               type="checkbox"
-              name="viewAssignmentImage"
-              id="viewAssignmentImage"
-              checked={viewAssignmentImage}
-              onChange={() => setViewAssignmentImage((prev) => !prev)}
+              name="isViewAssignmentImage"
+              id="isViewAssignmentImage"
+              checked={isViewAssignmentImage}
+              onChange={() => setIsViewAssignmentImage((prev) => !prev)}
             />
             <Toggle
-              checked={viewAssignmentImage}
-              onClick={() => setViewAssignmentImage((prev) => !prev)}
+              checked={isViewAssignmentImage}
+              onClick={() => setIsViewAssignmentImage((prev) => !prev)}
             />
           </FlexBox>
         </FlexBox>
@@ -101,58 +93,89 @@ const AssignmentResult = () => {
         </article>
       </section>
       <ul css={checkedAssignmentsStyle}>
-        {[...store.assignments.values()].map(
-          ({ id, isCorrect, answer, problemImage, answerImage, explanationImage }, index) => {
-            if (filterAssignments && isCorrect) return <Fragment key={id}></Fragment>
-            return (
-              <li key={id}>
-                <div className="answer_status">
-                  <Typography as="p" typoType="caption2">
-                    {index + 1}번&nbsp;&nbsp;&nbsp;
-                    <Typography typoType="caption2" color={isCorrect ? 'primary' : 'accent'}>
-                      {isCorrect ? '정답' : '오답'}
-                    </Typography>
-                  </Typography>
-                </div>
-                <div className="answer_status">
-                  <img src={answerImage} alt={`정답 :${answer}`} className="answer_img" />
-
-                  <label htmlFor={`viewCommentary${id}`}>
-                    <input
-                      css={css`
-                        display: none;
-                      `}
-                      type="checkbox"
-                      name={`viewCommentary${id}`}
-                      id={`viewCommentary${id}`}
-                      onChange={(e) => onChangeCometary(e, id)}
-                    />
-                    <Typography typoType="caption2">해설보기</Typography>
-                  </label>
-                </div>
-                {assignId === id && (
-                  <div className="answer_commentary">
-                    {viewAssignmentImage && (
-                      <div className="assignment_img_wrap">
-                        <img src={problemImage} alt="문제 이미지" />
-                      </div>
-                    )}
-                    <img src={explanationImage} alt="해설 이미지" />
-                    <label htmlFor={`viewCommentary${id}`}>
-                      <Typography as="p" typoType="caption2" align="center">
-                        ▲ 해설접기
-                      </Typography>
-                    </label>
-                  </div>
-                )}
-              </li>
-            )
-          }
-        )}
+        {[...store.assignments.values()].map((assignment, index) => {
+          return (
+            <CommentaryAssignment
+              key={assignment.id}
+              index={index}
+              assignment={assignment}
+              isAssignmentsFiltered={isAssignmentsFiltered}
+              isViewAssignmentImage={isViewAssignmentImage}
+            />
+          )
+        })}
       </ul>
     </Main>
   )
 }
+
+const CommentaryAssignment = observer(
+  ({
+    isAssignmentsFiltered,
+    isViewAssignmentImage,
+    assignment,
+    index,
+  }: {
+    isAssignmentsFiltered: boolean
+    isViewAssignmentImage: boolean
+    assignment: Store.UserAssignment
+    index: number
+  }) => {
+    const [assignId, setAssignId] = useState<number | null>(null)
+    const { id, isCorrect, answer, problemImage, answerImage, explanationImage } = assignment
+    const onChangeCometary = (e: ChangeEvent<HTMLInputElement>, id: number) => {
+      if (e.target.checked) {
+        setAssignId(id)
+      } else {
+        setAssignId(null)
+      }
+    }
+    if (isAssignmentsFiltered && isCorrect) return <Fragment></Fragment>
+    return (
+      <li>
+        <div className="answer_status">
+          <Typography as="p" typoType="caption2">
+            {index + 1}번&nbsp;&nbsp;&nbsp;
+            <Typography typoType="caption2" color={isCorrect ? 'primary' : 'accent'}>
+              {isCorrect ? '정답' : '오답'}
+            </Typography>
+          </Typography>
+        </div>
+        <div className="answer_status">
+          <img src={answerImage} alt={`정답 :${answer}`} className="answer_img" />
+
+          <label htmlFor={`viewCommentary${id}`}>
+            <input
+              css={css`
+                display: none;
+              `}
+              type="checkbox"
+              name={`viewCommentary${id}`}
+              id={`viewCommentary${id}`}
+              onChange={(e) => onChangeCometary(e, id)}
+            />
+            <Typography typoType="caption2">해설보기</Typography>
+          </label>
+        </div>
+        {assignId === id && (
+          <div className="answer_commentary">
+            {isViewAssignmentImage && (
+              <div className="assignment_img_wrap">
+                <img src={problemImage} alt="문제 이미지" />
+              </div>
+            )}
+            <img src={explanationImage} alt="해설 이미지" />
+            <label htmlFor={`viewCommentary${id}`}>
+              <Typography as="p" typoType="caption2" align="center">
+                ▲ 해설접기
+              </Typography>
+            </label>
+          </div>
+        )}
+      </li>
+    )
+  }
+)
 
 export const AssignmentResultPage = observer(AssignmentResult)
 

@@ -51,30 +51,28 @@ const AssignmentWorkbook = () => {
           / 총 {store.assignmentInfo.totalCount}문제
         </Typography>
 
-        <AssignmentContent currentStep={currentStep} />
-        <section>
-          <FlexBox css={[buttonGroup]}>
-            <button onClick={onPrevStep} style={{ opacity: `${isFirstStep ? 0 : 1}` }}>
-              이전 문제
-            </button>
-            <button type="submit" onClick={onNextStep} style={{ opacity: `${isLastStep ? 0 : 1}` }}>
-              다음 문제
-            </button>
-          </FlexBox>
-          <Button
-            disabled={store.isSubmitPossible}
-            onClick={onCheckAssignment}
-            className="assignment_check_btn"
-          >
-            제출하기
-          </Button>
-        </section>
+        <ChildrenComponent currentStep={currentStep} />
+        <FlexBox css={[buttonGroup]}>
+          <button onClick={onPrevStep} style={{ opacity: `${isFirstStep ? 0 : 1}` }}>
+            이전 문제
+          </button>
+          <button type="submit" onClick={onNextStep} style={{ opacity: `${isLastStep ? 0 : 1}` }}>
+            다음 문제
+          </button>
+        </FlexBox>
+        <Button
+          disabled={store.isSubmitPossible}
+          onClick={onCheckAssignment}
+          className="assignment_check_btn"
+        >
+          제출하기
+        </Button>
       </div>
     </Main>
   )
 }
 
-const AssignmentContent = observer(({ currentStep }: { currentStep: number }) => {
+const ChildrenComponent = observer(({ currentStep }: { currentStep: number }) => {
   const store = assignmentStore
 
   // step 단계별 현재 문제
@@ -98,8 +96,8 @@ const AssignmentContent = observer(({ currentStep }: { currentStep: number }) =>
   }
 
   return (
-    <section className="section_content" css={[sectionContent]}>
-      <div className="assignment_content">
+    <>
+      <section className="section_content">
         <article className="assignment_img_wrap">
           <img
             src={currentAssignment.problemImage}
@@ -107,34 +105,33 @@ const AssignmentContent = observer(({ currentStep }: { currentStep: number }) =>
             referrerPolicy="no-referrer"
           />
         </article>
-      </div>
-
-      <Typography typoType="body2" className="answer_count">
-        정답 {currentAssignment.answerLength}개
-      </Typography>
-      <div className="answer_sheet">
-        <FlexBox className="answer_sheet_checkbox">
-          {ANSWER_OPTIONS.map(({ label, value }) => {
-            return (
-              <ChangeInputWithRoundLabel
-                key={currentStep + ' ' + value}
-                type="checkbox"
-                value={value}
-                name="answer"
-                labelText={label}
-                id={`answer${value}`}
-                onChange={onAnswerChange}
-                checked={
-                  currentAssignment.selectedAnswer.length
-                    ? Boolean(currentAssignment.selectedAnswer.filter((v) => v === value)[0])
-                    : false
-                }
-              />
-            )
-          })}
-        </FlexBox>
-      </div>
-    </section>
+      </section>
+      <section className="section_content">
+        <Typography typoType="body2">정답 {currentAssignment.answerLength}개</Typography>
+        <div className="answer_sheet">
+          <FlexBox className="answer_sheet_checkbox">
+            {ANSWER_OPTIONS.map(({ label, value }) => {
+              return (
+                <ChangeInputWithRoundLabel
+                  key={currentStep + ' ' + value}
+                  type="checkbox"
+                  value={value}
+                  name="answer"
+                  labelText={label}
+                  id={`answer${value}`}
+                  onChange={onAnswerChange}
+                  checked={
+                    currentAssignment.selectedAnswer.length
+                      ? Boolean(currentAssignment.selectedAnswer.filter((v) => v === value)[0])
+                      : false
+                  }
+                />
+              )
+            })}
+          </FlexBox>
+        </div>
+      </section>
+    </>
   )
 })
 export const AssignmentWorkbookPage = observer(AssignmentWorkbook)
@@ -148,26 +145,11 @@ const AssignmentWorkbookStyle = css`
     padding: ${spacing.lg};
     padding-bottom: 0px;
   }
-  .assignment_check_btn {
-    width: calc(100% + ${spacing.lg}*2);
-    margin: 0 -${spacing.lg};
-  }
-`
-
-const sectionContent = css`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  .assignment_content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  .section_content {
     width: 100%;
-    height: 100%;
   }
   .assignment_img_wrap {
+    width: 100%%;
     padding: ${spacing.lg};
     border-radius: ${rounded.lg};
     border: 1px solid ${color.gray200};
@@ -176,25 +158,21 @@ const sectionContent = css`
       width: 100%;
     }
   }
-  .answer_count {
-    width: 100%;
-    margin-bottom: ${spacing.lg};
-  }
   .answer_sheet {
-    width: 100%;
-    border-radius: ${rounded.lg} ${rounded.lg} 0 0;
+    margin: ${spacing.xs} 0 ${spacing.md} 0;
+    border-radius: ${rounded.lg};
     box-shadow: ${shadow.md};
     background: ${color.white};
   }
   .answer_sheet_checkbox {
     padding: ${spacing.lg};
   }
+  .assignment_check_btn {
+    width: calc(100% + ${spacing.lg}*2);
+    margin: 0 -${spacing.lg};
+  }
 `
 const buttonGroup = css`
-  margin: 0 0 ${spacing.md};
   padding: ${spacing.lg};
-  border-radius: 0 0 ${rounded.lg} ${rounded.lg};
   border-top: 1px solid ${color.gray200};
-  box-shadow: ${shadow.md};
-  background: ${color.white};
 `
