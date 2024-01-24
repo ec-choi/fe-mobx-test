@@ -35,9 +35,7 @@ const S = {
   theme: {
     defaultTheme: {
       wrap: css`
-        /* height: 40px; */
-
-        ${DropdownItem} {
+        .dropdown_item {
           width: 100%;
           padding: 0 12px;
           min-height: 48px;
@@ -119,7 +117,7 @@ const S = {
       wrap: css`
         height: 56px;
 
-        ${DropdownItem} {
+        .dropdown_item {
           display: flex;
           position: relative;
           align-items: center;

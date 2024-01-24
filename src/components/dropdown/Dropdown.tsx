@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import clsx from 'clsx'
 import { observer } from 'mobx-react'
 import React from 'react'
@@ -32,6 +33,7 @@ const DefaultButton = ({
   ...props
 }: DropdownCustomButtonProps) => (
   <button
+    type="button"
     css={defaultTheme.button}
     onClick={toggleFn}
     data-testid="dropdown-default-button"

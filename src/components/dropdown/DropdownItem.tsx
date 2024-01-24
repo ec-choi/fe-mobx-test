@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import styled from '@emotion/styled'
 import clsx from 'clsx'
 import * as React from 'react'
@@ -35,8 +36,9 @@ const DropdownItem = ({ value, disabled = false, children, className, style }: P
   return (
     <button
       disabled={disabled}
-      className={clsx(isActive && 'active', className)}
+      className={clsx(isActive && 'active', className, 'dropdown_item')}
       style={style}
+      type="button"
       onClick={() => context?.onSelect(value, children, true)}
       ref={ref}
     >
