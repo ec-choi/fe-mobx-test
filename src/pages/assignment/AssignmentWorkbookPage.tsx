@@ -23,12 +23,6 @@ const AssignmentWorkbook = () => {
     maxStep: store.assignmentInfo.totalCount - 1,
   })
 
-  // 제출하고 채점하기로 넘어가기
-  const onCheckAssignment = async () => {
-    await store.fetchAnsSetAssignmentsAnswer()
-    navigate('/assignment/result')
-  }
-
   return (
     <Main css={AssignmentWorkbookStyle}>
       <Header
@@ -61,13 +55,7 @@ const AssignmentWorkbook = () => {
               다음 문제
             </button>
           </FlexBox>
-          <Button
-            disabled={store.isSubmitPossible}
-            onClick={onCheckAssignment}
-            className="assignment_check_btn"
-          >
-            제출하기
-          </Button>
+          <AssignmentSubmitButton />
         </section>
       </div>
     </Main>
@@ -135,6 +123,26 @@ const AssignmentContent = observer(({ currentStep }: { currentStep: number }) =>
         </FlexBox>
       </div>
     </section>
+  )
+})
+
+const AssignmentSubmitButton = observer(() => {
+  const store = assignmentStore
+  const navigate = useNavigate()
+
+  // 제출하고 채점하기로 넘어가기
+  const onCheckAssignment = async () => {
+    await store.fetchAnsSetAssignmentsAnswer()
+    navigate('/assignment/result')
+  }
+  return (
+    <Button
+      disabled={store.isSubmitPossible}
+      onClick={onCheckAssignment}
+      className="assignment_check_btn"
+    >
+      제출하기
+    </Button>
   )
 })
 export const AssignmentWorkbookPage = observer(AssignmentWorkbook)

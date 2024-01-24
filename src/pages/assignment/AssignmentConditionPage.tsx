@@ -106,29 +106,27 @@ const AssignmentCondition = () => {
                   dropdownStore.setGrade(value)
                 }}
               >
-                <>
-                  {dropdownStore.uiSchool === SCHOOLS[0].value ? (
-                    <>
-                      {ELEMENTARY_GRADES.map(({ value, label }) => {
-                        return (
-                          <DropdownItem key={value} value={value} data-mathflat-unique-id={value}>
-                            {label}
-                          </DropdownItem>
-                        )
-                      })}
-                    </>
-                  ) : (
-                    <>
-                      {BASE_GRADES.map(({ value, label }) => {
-                        return (
-                          <DropdownItem key={value} value={value} data-mathflat-unique-id={value}>
-                            {label}
-                          </DropdownItem>
-                        )
-                      })}
-                    </>
-                  )}
-                </>
+                {dropdownStore.uiSchool === SCHOOLS[0].value ? (
+                  <>
+                    {ELEMENTARY_GRADES.map(({ value, label }) => {
+                      return (
+                        <DropdownItem key={value} value={value} data-mathflat-unique-id={value}>
+                          {label}
+                        </DropdownItem>
+                      )
+                    })}
+                  </>
+                ) : (
+                  <>
+                    {BASE_GRADES.map(({ value, label }) => {
+                      return (
+                        <DropdownItem key={value} value={value} data-mathflat-unique-id={value}>
+                          {label}
+                        </DropdownItem>
+                      )
+                    })}
+                  </>
+                )}
               </Dropdown>
 
               {/* 학기 */}
