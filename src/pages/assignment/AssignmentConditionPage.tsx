@@ -1,4 +1,3 @@
-import { Fragment } from 'react'
 import {
   ASSIGN_MAX_SIZE,
   BASE_GRADES,
@@ -7,7 +6,7 @@ import {
   SCHOOLS,
   SEMESTERS,
 } from '../../constants/assignmentConstant'
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { useForm, SubmitHandler, Controller } from 'react-hook-form'
 import { REG_EXP } from '../../constants/regExp'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react'
@@ -18,13 +17,16 @@ import Typography from '../../components/typography/Typography'
 import { css } from '@emotion/react'
 import { color, spacing } from '../../styles/style'
 import Button from '../../components/button/Button'
-
+import Input from '../../components/input/Input'
+import FlexBox from '../../components/layout/FlexBox'
+import { ChangeInputWithRoundLabel } from '../../components/input/ChangeInputWithRoundLabel'
 // 문제 유형 선택
 const AssignmentCondition = () => {
   const store = assignmentStore
   const navigate = useNavigate()
   const {
     register,
+    control,
     handleSubmit,
     watch,
     formState: { errors },
@@ -97,32 +99,55 @@ const AssignmentCondition = () => {
             <Typography as="h2" typoType="body1">
               난이도 선택
             </Typography>
-            {LEVELS.map(({ label, value }) => {
-              return (
-                <Fragment key={value}>
-                  <input type="radio" id={`level${value}`} value={value} {...register('level')} />
-                  <label htmlFor={`level${value}`}>{label}</label>
-                </Fragment>
-              )
-            })}
+            <FlexBox justify="flex-start" gap="lg">
+              <Controller
+                name="level"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    {LEVELS.map(({ value, label }) => (
+                      <ChangeInputWithRoundLabel
+                        key={value}
+                        type="radio"
+                        id={`level${value}`}
+                        {...field}
+                        defaultChecked={LEVELS[2].value === value}
+                        labelText={label}
+                      />
+                    ))}
+                  </>
+                )}
+              />
+            </FlexBox>
           </section>
 
           <section className="section_content">
             <Typography as="h2" typoType="body1">
               원하는 문제 수
             </Typography>
-            <input
-              type="text"
-              id="size"
-              {...register('size', {
-                min: 1,
-                max: ASSIGN_MAX_SIZE,
-                pattern: REG_EXP.NUMBER,
-                required: true,
-              })}
-            />
-            개 / 30개
-            {errors.size && <p>숫자만 입력가능합니다 최대 30문제까지 가능합니다</p>}
+            <FlexBox justify="flex-start">
+              <Input
+                type="text"
+                id="size"
+                isError={Boolean(errors.size)}
+                {...register('size', {
+                  min: 1,
+                  max: ASSIGN_MAX_SIZE,
+                  pattern: REG_EXP.NUMBER,
+                  required: true,
+                })}
+              />
+              <Typography typoType="body1" color="black">
+                개 / 30개
+              </Typography>
+            </FlexBox>
+
+            {errors.size && (
+              <Typography as="p" typoType="body1" color="accent">
+                숫자만 입력가능합니다
+                <br /> 최대 30문제까지 가능합니다
+              </Typography>
+            )}
           </section>
         </div>
         <section>
@@ -159,7 +184,7 @@ const AssignmentConditionStyle = css`
   .section_content {
     width: 100%;
     margin-bottom: ${spacing.xxxl};
-    .body1 {
+    h2 {
       margin-bottom: ${spacing.md};
     }
   }

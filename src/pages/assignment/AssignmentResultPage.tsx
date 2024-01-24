@@ -9,6 +9,7 @@ import { css } from '@emotion/react'
 import { spacing, color, rounded } from '../../styles/style'
 import { Header } from '../../components/layout/Header'
 import Typography from '../../components/typography/Typography'
+import FlexBox from '../../components/layout/FlexBox'
 
 const AssignmentResult = () => {
   const store = assignmentStore
@@ -37,35 +38,45 @@ const AssignmentResult = () => {
         rightButton={<button onClick={onAssignmentCondition}>완료하기</button>}
       />
       <section className="section_content">
-        <article>
-          <label htmlFor="filterAssignments">
-            <Typography typoType="body2">오답/모르는 문제만 보기</Typography>
-          </label>
-          <input
-            type="checkbox"
-            name="filterAssignments"
-            id="filterAssignments"
-            onChange={() => setFilterAssignments((prev) => !prev)}
-          />
-          <Toggle
-            checked={filterAssignments}
-            onClick={() => setFilterAssignments((prev) => !prev)}
-          />
-          <label htmlFor="viewAssignmentImage">
-            <Typography typoType="body2">문제 같이 보기</Typography>
-          </label>
-          <input
-            type="checkbox"
-            name="viewAssignmentImage"
-            id="viewAssignmentImage"
-            checked={viewAssignmentImage}
-            onChange={() => setViewAssignmentImage((prev) => !prev)}
-          />
-          <Toggle
-            checked={viewAssignmentImage}
-            onClick={() => setViewAssignmentImage((prev) => !prev)}
-          />
-        </article>
+        <FlexBox>
+          <FlexBox>
+            <label htmlFor="filterAssignments">
+              <Typography typoType="body2">오답/모르는 문제만 보기</Typography>
+            </label>
+            <input
+              css={css`
+                display: none;
+              `}
+              type="checkbox"
+              name="filterAssignments"
+              id="filterAssignments"
+              onChange={() => setFilterAssignments((prev) => !prev)}
+            />
+            <Toggle
+              checked={filterAssignments}
+              onClick={() => setFilterAssignments((prev) => !prev)}
+            />
+          </FlexBox>
+          <FlexBox>
+            <label htmlFor="viewAssignmentImage">
+              <Typography typoType="body2">문제 같이 보기</Typography>
+            </label>
+            <input
+              css={css`
+                display: none;
+              `}
+              type="checkbox"
+              name="viewAssignmentImage"
+              id="viewAssignmentImage"
+              checked={viewAssignmentImage}
+              onChange={() => setViewAssignmentImage((prev) => !prev)}
+            />
+            <Toggle
+              checked={viewAssignmentImage}
+              onClick={() => setViewAssignmentImage((prev) => !prev)}
+            />
+          </FlexBox>
+        </FlexBox>
         <article css={checkedResult}>
           <div className="checked_result">
             <Typography as="p" typoType="body3" color="gray600" align="center">
@@ -108,10 +119,12 @@ const AssignmentResult = () => {
 
                   <label htmlFor={`viewCommentary${id}`}>
                     <input
+                      css={css`
+                        display: none;
+                      `}
                       type="checkbox"
                       name={`viewCommentary${id}`}
                       id={`viewCommentary${id}`}
-                      // onChange={(e) => store.setIsShowCommentary(id, e.target.checked)}
                       onChange={(e) => onChangeCometary(e, id)}
                     />
                     <Typography typoType="caption2">해설보기</Typography>

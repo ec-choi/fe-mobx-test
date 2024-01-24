@@ -11,6 +11,8 @@ import Typography from '../../components/typography/Typography'
 import { css } from '@emotion/react'
 import { color, rounded, shadow, spacing } from '../../styles/style'
 import Button from '../../components/button/Button'
+import { ChangeInputWithRoundLabel } from '../../components/input/ChangeInputWithRoundLabel'
+import FlexBox from '../../components/layout/FlexBox'
 
 const AssignmentWorkbook = () => {
   const store = assignmentStore
@@ -81,13 +83,15 @@ const AssignmentWorkbook = () => {
           <Typography typoType="body2">정답 {currentAssignment.answerLength}개</Typography>
 
           <div className="answer_sheet">
-            {ANSWER_OPTIONS.map(({ label, value }) => {
-              return (
-                <Fragment key={currentStep + ' ' + value}>
-                  <input
+            <FlexBox className="answer_sheet_checkbox">
+              {ANSWER_OPTIONS.map(({ label, value }) => {
+                return (
+                  <ChangeInputWithRoundLabel
+                    key={currentStep + ' ' + value}
                     type="checkbox"
                     value={value}
                     name="answer"
+                    labelText={label}
                     id={`answer${value}`}
                     onChange={onAnswerChange}
                     checked={
@@ -96,11 +100,9 @@ const AssignmentWorkbook = () => {
                         : false
                     }
                   />
-                  <label htmlFor={`answer${value}`}>{label}</label>
-                </Fragment>
-              )
-            })}
-
+                )
+              })}
+            </FlexBox>
             <nav css={[buttonGroup]}>
               <button onClick={onPrevStep} style={{ opacity: `${isFirstStep ? 0 : 1}` }}>
                 이전 문제
@@ -158,7 +160,9 @@ const AssignmentWorkbookStyle = css`
     box-shadow: ${shadow.md};
     background: ${color.white};
   }
-
+  .answer_sheet_checkbox {
+    padding: ${spacing.lg};
+  }
   .assignment_check_btn {
     width: calc(100% + ${spacing.lg}*2);
     margin: 0 -${spacing.lg};

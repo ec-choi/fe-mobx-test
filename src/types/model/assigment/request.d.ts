@@ -1,7 +1,7 @@
 declare namespace Request {
   // ** 문제 조회 요청
   type AssignmentContent = {
-    school: SCHOOLS[number]['value']
+    school: 'ELEMENTARY' | 'MIDDLE' | 'HIGH'
     grade: number
     semester: number
     level: string
